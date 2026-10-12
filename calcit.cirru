@@ -12,7 +12,7 @@
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-container (store)
-            group nil (comp-ground)
+            group ({}) (comp-ground)
               comp-cubes $ {} $ :size 1000
               comp-polylines $ {} $ :writer
                 fn (write!)
@@ -22,10 +22,12 @@
                         helix-calc-position $ * 0.1 idx
                         , 200
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] $ :: 'Map 'Tag 'Tag
         'comp-cubes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-cubes (options)
             let
-                size $ either (:size options) 400
+                size $ .unwrap-or (get options :size) 400
                 h $ * size 20
                 many 2000
               object $ {} (:shader cube-wgsl)
@@ -36,14 +38,14 @@
                     let
                         base $ rand-pos 800000
                       []
-                        :: :vertex $ v+ base $ [] 0 0 0
-                        :: :vertex $ v+ base $ [] 0 h 0
-                        :: :vertex $ v+ base $ [] 0 h size
-                        :: :vertex $ v+ base $ [] 0 0 size
-                        :: :vertex $ v+ base $ [] size 0 0
-                        :: :vertex $ v+ base $ [] size h 0
-                        :: :vertex $ v+ base $ [] size h size
-                        :: :vertex $ v+ base $ [] size 0 size
+                        :: :vertex $ v+ base $ v3 0 0 0
+                        :: :vertex $ v+ base $ v3 0 h 0
+                        :: :vertex $ v+ base $ v3 0 h size
+                        :: :vertex $ v+ base $ v3 0 0 size
+                        :: :vertex $ v+ base $ v3 size 0 0
+                        :: :vertex $ v+ base $ v3 size h 0
+                        :: :vertex $ v+ base $ v3 size h size
+                        :: :vertex $ v+ base $ v3 size 0 size
                 :indices $ -> (range many)
                   map $ fn (idx)
                     ->
@@ -52,6 +54,8 @@
                         map line $ fn (x)
                           + x $ * idx 8
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] $ :: 'Map 'Tag 'Number
         'comp-ground $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-ground ()
             let
@@ -69,22 +73,26 @@
                           let
                               j+1 $ inc j
                             []
-                              : vertex $ [] (* unit i) y $ * unit j
-                              : vertex $ [] (* unit i+1) y $ * unit j
-                              : vertex $ [] (* unit i) y $ * unit j+1
-                              : vertex $ [] (* unit i) y $ * unit j+1
-                              : vertex $ [] (* unit i+1) y $ * unit j
-                              : vertex $ [] (* unit i+1) y $ * unit j+1
+                              :: :vertex $ [] (* unit i) y $ * unit j
+                              :: :vertex $ [] (* unit i+1) y $ * unit j
+                              :: :vertex $ [] (* unit i) y $ * unit j+1
+                              :: :vertex $ [] (* unit i) y $ * unit j+1
+                              :: :vertex $ [] (* unit i+1) y $ * unit j
+                              :: :vertex $ [] (* unit i+1) y $ * unit j+1
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ []
         'rand-pos $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-pos (n)
             v-scale
-              []
-                - (js/Math.random) 0.5
-                * 0.1 $ - (js/Math.random) 0.2
-                - (js/Math.random) 0.5
+              v3
+                - (random) 0.5
+                * 0.1 $ - (random) 0.2
+                - (random) 0.5
               , n
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
+            :args $ [] 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -93,8 +101,9 @@
             |../shaders/ground.wgsl :default ground-wgsl
             lagopus.comp.curves :refer $ comp-curves comp-polylines
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v+ v-scale
             app.path :refer $ helix-calc-position
+            quaternion.vector :refer $ v+ v-scale v3
+            js-ffi.browser :refer $ random
     'app.config $ %{} 'FileEntry
       :defs $ {}
         'dev? $ %{} 'CodeEntry (:doc |)
@@ -123,58 +132,80 @@
           :code $ quote $ defatom *store
             {} $ :tab :cube
           :examples $ []
-        'canvas $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def canvas (js/document.querySelector |canvas)
+          :schema $ :: 'Ref $ :: 'Map 'Tag 'Tag
+        'Op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Op (:tab 'Tag)
           :examples $ []
+          :schema $ :: 'EnumDef
+        'canvas $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ def canvas (query-canvas!)
+          :examples $ []
+          :schema $ :: 'lagopus.browser/Canvas
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
-            if dev? $ js/console.log op
+            if dev? $ console-log! $ str op
             let
                 store @*store
-                next-store $ tag-match op
-                  (:states cursor s) (update-states store cursor s)
+                next-store $ match op
                   (:tab t) (assoc store :tab t)
                   _ $ do (eprintln ":unknown op" op) store
               if (not= next-store store) (reset! *store next-store)
+            , &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'app.main/Op
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn main! () (hint-fn async)
+          :code $ quote $ defn main! ()
+            hint-fn $ {} $ :async true
             if dev? $ load-console-formatter!
             js-await $ initializeContext
             initializeCanvasTextures
-            reset-clear-color! $ either bg-color $ {} (:r 0.85) (:g 0.89) (:b 0.99) (:a 1)
+            reset-clear-color! $ .unwrap-or bg-color $ :: :rgba 0.85 0.89 0.99 1
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
             set! js/window.__lagopusHandleCompilationInfo handle-compilation
             set! js/window.onresize $ fn (e) (resetCanvasSize canvas) (initializeCanvasTextures) (paintLagopusTree)
             resetCanvasSize canvas
-            add-watch *store :change $ fn (next store) (render-app!)
+            add-watch! *store :change $ fn (next store) (render-app!)
             setupMouseEvents canvas
             if remote-control? $ setupRemoteControl
             setup-roll!
+            , &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
-              do (reset-memof1-caches!) (render-app!) (remove-watch *store :change)
-                add-watch *store :change $ fn (next store) (render-app!)
+              do (reset-memof1-caches!) (render-app!) (remove-watch! *store :change)
+                add-watch! *store :change $ fn (next store) (render-app!)
                 setup-roll!
                 println |Reloaded.
                 hud! |ok~ |OK
               hud! |error build-errors
+            , &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             let
                 tree $ comp-container @*store
               renderLagopusTree tree dispatch!
+            , &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
         'setup-roll! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn setup-roll! () (set! js/window.roll roll!)
-            if (some? js/window._raf) (js/cancelAnimationFrame js/window._raf)
-            roll!
+          :code $ quote $ defn setup-roll! () (set! js/window.roll roll!) (cancel-roll!) (roll!) &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -186,34 +217,53 @@
             |./calcit.build-errors :default build-errors
             memof.once :refer $ reset-memof1-caches!
             lagopus.util :refer $ handle-compilation reset-clear-color!
-            lagopus.cursor :refer $ update-states
             lagopus.config :refer $ bg-color
             |@triadica/lagopus/lib/remote-control.mjs :refer $ setupRemoteControl
-            app.path :refer $ roll!
+            app.path :refer $ [] roll! cancel-roll!
+            lagopus.browser :refer $ [] query-canvas!
+            js-ffi.browser :refer $ [] console-log!
     'app.path $ %{} 'FileEntry
       :defs $ {}
+        '*frame $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defatom *frame (%none)
+          :examples $ []
+          :schema $ :: 'Ref $ :: 'Option 'Number
+        'cancel-roll! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn cancel-roll! ()
+            match @*frame
+              (:some frame) (cancel-animation-frame! frame)
+              (:none) &unit
+            reset! *frame $ %none
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
         'helix-calc-position $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn helix-calc-position (time)
             let
                 angle $ * 0.8 time
                 r 6000
-              []
+              v3
                 - (* time 10000) 200000
                 + 10000 $ * r $ cos angle
                 * r $ sin angle
           :examples $ []
-          :schema $ :: 'Fn $ {}
+          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
             :args $ [] 'Number
-            :return $ :: 'List 'Number
         'roll! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll! ()
-            roll-helix! $ js/performance.now
-            ; roll-cycloid! 0
+            roll-helix! $ performance-now
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
         'roll-cycloid! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-cycloid! (t)
             when (< t 200000)
-              js/requestAnimationFrame $ fn (d)
+              request-animation-frame! $ fn (d)
+                hint-fn $ {}
+                  :args $ [] 'Number
+                  :return 'Unit
+                  :features $ #{} :js-ffi
                 let
                     dt $ * d 0.001
                     next $ + t dt
@@ -236,38 +286,49 @@
                   .!reset atomViewerPosition $ js-array & p
                   .!reset atomViewerUpward $ js-array & up
                   paintLagopusTree
-                  ; js/console.log t
                   roll-cycloid! next
+                  , &unit
+            , &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
         'roll-helix! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-helix! (t0)
-            set! js/window._raf $ js/requestAnimationFrame $ fn (t)
-              let
-                  d $ - t t0
-                  dt $ * d 0.001
-                  time dt
-                  p $ helix-calc-position time
-                  p-next $ helix-calc-position $ + time 0.02
-                  front $ do
-                    v-normalize $ &v- p-next p
-                    ; [] 1 0 0
-                  up $ do
-                    v-normalize $ &v-
-                      []
+            reset! *frame $ %some $ request-animation-frame!
+              fn (t)
+                hint-fn $ {}
+                  :args $ [] 'Number
+                  :return 'Unit
+                  :features $ #{} :js-ffi
+                let
+                    d $ - t t0
+                    dt $ * d 0.001
+                    time dt
+                    p $ helix-calc-position time
+                    p-next $ helix-calc-position $ + time 0.02
+                    front $ v-normalize $ &v- p-next p
+                    up $ v-normalize $ &v-
+                      v3
                         - (* time 10000) 200000
                         , 10000 0
                       , p
-                    ; [] 0 1 0
-                .!reset atomViewerForward $ js-array & front
-                .!reset atomViewerPosition $ js-array & p
-                .!reset atomViewerUpward $ js-array & up
-                paintLagopusTree
-                ; js/console.log t
-                if (< dt 40) (roll-helix! t0)
+                  .!reset atomViewerForward $ v3-js front
+                  .!reset atomViewerPosition $ v3-js p
+                  .!reset atomViewerUpward $ v3-js up
+                  paintLagopusTree
+                  if (< dt 40) (roll-helix! t0)
+                  , &unit
+            , &unit
           :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.path
           :require
             |@triadica/lagopus :refer $ paintLagopusTree
             |@triadica/lagopus/lib/perspective.mjs :refer $ atomViewerForward atomViewerPosition atomViewerUpward
-            quaternion.core :refer $ &v- v-normalize
+            quaternion.vector :refer $ &v- v-normalize v3
+            lagopus.comp.button :refer $ v3-js
+            js-ffi.browser :refer $ request-animation-frame! cancel-animation-frame!
+            js-ffi.shared :refer $ performance-now
