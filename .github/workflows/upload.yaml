@@ -31,7 +31,7 @@ jobs:
     - uses: calcit-lang/setup-calcit@v1.5.0
       with:
         tools: calcit,caps
-        calcit-version: "0.29.1"
+        deps-file: deps.cirru
         caps-version: "0.1.1"
     - name: Install immutable dependencies
       run: |
@@ -43,6 +43,7 @@ jobs:
         calcit edit format
         git diff --exit-code -- calcit.cirru
         calcit --check-only --all-defs --format json
+        calcit fix --workflow strict --verify
     - name: Build frontend
       run: |
         calcit js

@@ -64,11 +64,11 @@
               object $ {} (:shader ground-wgsl)
                 :topology $ do :line-strip :triangle-list
                 :attrs-list $ [] $ :: :float32x3 :position
-                :data $ -> (range-bothway 100)
+                :data $ -> (range -99 100)
                   map $ fn (i)
                     let
                         i+1 $ inc i
-                      -> (range-bothway 100)
+                      -> (range -99 100)
                         map $ fn (j)
                           let
                               j+1 $ inc j
@@ -129,7 +129,7 @@
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *store
+          :code $ quote $ defref *store
             {} $ :tab :cube
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Tag 'Tag
@@ -219,13 +219,13 @@
             lagopus.util :refer $ handle-compilation reset-clear-color!
             lagopus.config :refer $ bg-color
             |@triadica/lagopus/lib/remote-control.mjs :refer $ setupRemoteControl
-            app.path :refer $ [] roll! cancel-roll!
-            lagopus.browser :refer $ [] query-canvas!
-            js-ffi.browser :refer $ [] console-log!
+            app.path :refer $ roll! cancel-roll!
+            lagopus.browser :refer $ query-canvas!
+            js-ffi.browser :refer $ console-log!
     'app.path $ %{} 'FileEntry
       :defs $ {}
         '*frame $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *frame (%none)
+          :code $ quote $ defref *frame (Option :none)
           :examples $ []
           :schema $ :: 'Ref $ :: 'Option 'Number
         'cancel-roll! $ %{} 'CodeEntry (:doc |)
@@ -233,7 +233,7 @@
             match @*frame
               (:some frame) (cancel-animation-frame! frame)
               (:none) &unit
-            reset! *frame $ %none
+            reset! *frame $ Option :none
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -282,9 +282,18 @@
                       negate $ sin da
                       cos da
                       , 0
-                  .!reset atomViewerForward $ js-array & front
-                  .!reset atomViewerPosition $ js-array & p
-                  .!reset atomViewerUpward $ js-array & up
+                  .!reset atomViewerForward $ js-array
+                    .unwrap $ nth front 0
+                    .unwrap $ nth front 1
+                    .unwrap $ nth front 2
+                  .!reset atomViewerPosition $ js-array
+                    .unwrap $ nth p 0
+                    .unwrap $ nth p 1
+                    .unwrap $ nth p 2
+                  .!reset atomViewerUpward $ js-array
+                    .unwrap $ nth up 0
+                    .unwrap $ nth up 1
+                    .unwrap $ nth up 2
                   paintLagopusTree
                   roll-cycloid! next
                   , &unit
@@ -295,7 +304,7 @@
             :features $ #{} :js-ffi
         'roll-helix! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-helix! (t0)
-            reset! *frame $ %some $ request-animation-frame!
+            reset! *frame $ Option :some $ request-animation-frame!
               fn (t)
                 hint-fn $ {}
                   :args $ [] 'Number
