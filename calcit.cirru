@@ -22,8 +22,7 @@
                         helix-calc-position $ * 0.1 idx
                         , 200
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] $ :: 'Map 'Tag 'Tag
+          :schema $ quote $ Fn (Map Tag Tag) (-> JsObject)
         'comp-cubes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-cubes (options)
             let
@@ -54,8 +53,7 @@
                         map line $ fn (x)
                           + x $ * idx 8
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] $ :: 'Map 'Tag 'Number
+          :schema $ quote $ Fn (Map Tag Number) (-> JsObject)
         'comp-ground $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-ground ()
             let
@@ -80,8 +78,7 @@
                               :: :vertex $ [] (* unit i+1) y $ * unit j
                               :: :vertex $ [] (* unit i+1) y $ * unit j+1
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ []
+          :schema $ quote $ Fn (-> JsObject)
         'rand-pos $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-pos (n)
             v-scale
@@ -91,8 +88,7 @@
                 - (random) 0.5
               , n
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number (-> quaternion.vector/V3)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -110,20 +106,19 @@
           :code $ quote $ def dev?
             &= |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'inline-shader $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro inline-shader (path)
             read-file $ str |shaders/ path |.wgsl
           :examples $ []
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{} :fs-read
-            :expansion $ :: 'Expr 'String
-            :required $ [] $ :: 'Expr 'String
+          :schema $ quote $ Macro (Expr String)
+            -> $ Expr String
+            :capabilities :fs-read
         'remote-control? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def remote-control?
             .some? $ get-env |remote-control
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
     'app.main $ %{} 'FileEntry
@@ -132,15 +127,15 @@
           :code $ quote $ defref *store
             {} $ :tab :cube
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Tag
+          :schema $ quote $ Ref (Map Tag Tag)
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op (:tab 'Tag)
           :examples $ []
-          :schema $ :: 'EnumDef
+          :schema $ quote EnumDef
         'canvas $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def canvas (query-canvas!)
           :examples $ []
-          :schema $ :: 'lagopus.browser/Canvas
+          :schema $ quote lagopus.browser/Canvas
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             if dev? $ console-log! $ str op
@@ -152,11 +147,9 @@
               if (not= next-store store) (reset! *store next-store)
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'app.main/Op
+          :schema $ quote $ Fn app.main/Op (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn main! ()
-            hint-fn $ {} $ :async true
+          :code $ quote $ defn main! () (hint-fn Async)
             if dev? $ load-console-formatter!
             js-await $ initializeContext
             initializeCanvasTextures
@@ -173,9 +166,7 @@
             setup-roll!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -187,9 +178,7 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             let
@@ -197,15 +186,11 @@
               renderLagopusTree tree dispatch!
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'setup-roll! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn setup-roll! () (set! js/window.roll roll!) (cancel-roll!) (roll!) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -227,7 +212,7 @@
         '*frame $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *frame (Option :none)
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Option 'Number
+          :schema $ quote $ Ref (Option Number)
         'cancel-roll! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn cancel-roll! ()
             match @*frame
@@ -236,8 +221,7 @@
             reset! *frame $ Option :none
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'helix-calc-position $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn helix-calc-position (time)
             let
@@ -248,22 +232,17 @@
                 + 10000 $ * r $ cos angle
                 * r $ sin angle
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'quaternion.vector/V3)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number (-> quaternion.vector/V3)
         'roll! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll! ()
             roll-helix! $ performance-now
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'roll-cycloid! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-cycloid! (t)
             when (< t 200000)
               request-animation-frame! $ fn (d)
-                hint-fn $ {}
-                  :args $ [] 'Number
-                  :return 'Unit
-                  :features $ #{} :js-ffi
+                hint-fn $ Fn Number (-> Unit) (:features :js-ffi)
                 let
                     dt $ * d 0.001
                     next $ + t dt
@@ -299,17 +278,12 @@
                   , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Number (-> Unit) (:features :js-ffi)
         'roll-helix! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-helix! (t0)
             reset! *frame $ Option :some $ request-animation-frame!
               fn (t)
-                hint-fn $ {}
-                  :args $ [] 'Number
-                  :return 'Unit
-                  :features $ #{} :js-ffi
+                hint-fn $ Fn Number (-> Unit) (:features :js-ffi)
                 let
                     d $ - t t0
                     dt $ * d 0.001
@@ -330,8 +304,7 @@
                   , &unit
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Number
+          :schema $ quote $ Fn Number (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.path
           :require
