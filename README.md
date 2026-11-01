@@ -10,7 +10,7 @@ CLI / `@calcit/procs` 配对正式 **0.32.1**，需要重新安装依赖并生�
 类型标注存储语法由官方 formatter 迁移；21 个定义的完整官方视图与规范化基线一致，
 没有改变执行代码、schema、文档或测试元数据。
 
-模块配对正式 Lagopus 0.5.14、Quaternion 0.2.19、Memof 0.0.43、JS FFI 0.2.9。
+模块配对正式 Lagopus 0.5.15、Quaternion 0.2.19、Memof 0.0.43、JS FFI 0.2.9。
 原 2,000 个方块、10,000 个轨道采样、40 秒相机周期及 `hud!` 页面报错保留；
 不减少场景复杂度、不更改 shader、原前端 CDN 或服务器部署路径。
 Memof 仍只使用既有缓存 API，不新增 Anchor 调用或状态协议。
