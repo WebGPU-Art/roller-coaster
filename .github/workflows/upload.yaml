@@ -35,17 +35,20 @@ jobs:
         caps-version: "0.1.1"
     - name: Install immutable dependencies
       run: |
+        set -euo pipefail
         caps --ci --strict
-        YARN_ENABLE_SCRIPTS=true yarn install --immutable
+        yarn install --immutable
         caps verify --toolchain
     - name: Check Calcit source
       run: |
+        set -euo pipefail
         calcit edit format
-        git diff --exit-code -- calcit.cirru
+        git diff --quiet -- calcit.cirru
         calcit --check-only --all-defs --format json
         calcit fix --workflow strict --verify
     - name: Build frontend
       run: |
+        set -euo pipefail
         calcit js
         node --check js-out/app.main.mjs
         yarn vite build --base="https://cos-sh.tiye.me/${GITHUB_REPOSITORY}/"
@@ -55,6 +58,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        set -euo pipefail
         current_sha="$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq '.sha')"
         if [[ "$GITHUB_SHA" == "$current_sha" ]]; then
           echo "current=true" >> "$GITHUB_OUTPUT"
