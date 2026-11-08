@@ -10,17 +10,26 @@
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
+        'TrackVertex $ %{} 'CodeEntry
+          :doc "|A rail sample with a three-dimensional position and a width."
+          :code $ quote $ defenum TrackVertex (:vertex quaternion.vector/V3 Number)
+          :examples $ []
+          :schema $ quote EnumDef
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-container (store)
             group ({}) (comp-ground)
               comp-cubes $ {} $ :size 1000
               comp-polylines $ {} $ :writer
                 fn (write!)
-                  -> (range 10000)
-                    map $ fn (idx)
-                      write! $ :: :vertex
-                        helix-calc-position $ * 0.1 idx
-                        , 200
+                  hint-fn $ Fn
+                    Fn app.comp.container/TrackVertex $ -> Unit
+                    -> Unit
+                  &doseq
+                    idx $ range 10000
+                    write! $ TrackVertex :vertex
+                      helix-calc-position $ * 0.1 idx
+                      , 200
+                  , &unit
           :examples $ []
           :schema $ quote $ Fn (Map Tag Tag) (-> JsObject)
         'comp-cubes $ %{} 'CodeEntry (:doc |)
@@ -129,7 +138,7 @@
           :examples $ []
           :schema $ quote $ Ref (Map Tag Tag)
         'Op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defenum Op (:tab 'Tag)
+          :code $ quote $ defenum Op (:tab Tag)
           :examples $ []
           :schema $ quote EnumDef
         'canvas $ %{} 'CodeEntry (:doc |)
@@ -153,7 +162,7 @@
             if dev? $ load-console-formatter!
             js-await $ initializeContext
             initializeCanvasTextures
-            reset-clear-color! $ .unwrap-or bg-color $ :: :rgba 0.85 0.89 0.99 1
+            reset-clear-color! $ .unwrap-or bg-color $ lagopus.config/ClearColor :rgba 0.85 0.89 0.99 1
             render-app!
             renderControl
             startControlLoop 10 onControlEvent
