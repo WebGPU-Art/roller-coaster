@@ -10,6 +10,10 @@
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
+        'MeshVertex $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum MeshVertex (:vertex quaternion.vector/V3)
+          :examples $ []
+          :schema $ quote EnumDef
         'TrackVertex $ %{} 'CodeEntry
           :doc "|A rail sample with a three-dimensional position and a width."
           :code $ quote $ defenum TrackVertex (:vertex quaternion.vector/V3 Number)
@@ -46,14 +50,14 @@
                     let
                         base $ rand-pos 800000
                       []
-                        :: :vertex $ v+ base $ v3 0 0 0
-                        :: :vertex $ v+ base $ v3 0 h 0
-                        :: :vertex $ v+ base $ v3 0 h size
-                        :: :vertex $ v+ base $ v3 0 0 size
-                        :: :vertex $ v+ base $ v3 size 0 0
-                        :: :vertex $ v+ base $ v3 size h 0
-                        :: :vertex $ v+ base $ v3 size h size
-                        :: :vertex $ v+ base $ v3 size 0 size
+                        MeshVertex :vertex $ v+ base $ v3 0 0 0
+                        MeshVertex :vertex $ v+ base $ v3 0 h 0
+                        MeshVertex :vertex $ v+ base $ v3 0 h size
+                        MeshVertex :vertex $ v+ base $ v3 0 0 size
+                        MeshVertex :vertex $ v+ base $ v3 size 0 0
+                        MeshVertex :vertex $ v+ base $ v3 size h 0
+                        MeshVertex :vertex $ v+ base $ v3 size h size
+                        MeshVertex :vertex $ v+ base $ v3 size 0 size
                 :indices $ -> (range many)
                   map $ fn (idx)
                     ->
@@ -80,12 +84,12 @@
                           let
                               j+1 $ inc j
                             []
-                              :: :vertex $ [] (* unit i) y $ * unit j
-                              :: :vertex $ [] (* unit i+1) y $ * unit j
-                              :: :vertex $ [] (* unit i) y $ * unit j+1
-                              :: :vertex $ [] (* unit i) y $ * unit j+1
-                              :: :vertex $ [] (* unit i+1) y $ * unit j
-                              :: :vertex $ [] (* unit i+1) y $ * unit j+1
+                              MeshVertex :vertex $ v3 (* unit i) y $ * unit j
+                              MeshVertex :vertex $ v3 (* unit i+1) y $ * unit j
+                              MeshVertex :vertex $ v3 (* unit i) y $ * unit j+1
+                              MeshVertex :vertex $ v3 (* unit i) y $ * unit j+1
+                              MeshVertex :vertex $ v3 (* unit i+1) y $ * unit j
+                              MeshVertex :vertex $ v3 (* unit i+1) y $ * unit j+1
           :examples $ []
           :schema $ quote $ Fn (-> JsObject)
         'rand-pos $ %{} 'CodeEntry (:doc |)
