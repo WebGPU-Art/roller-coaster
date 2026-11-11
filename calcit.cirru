@@ -26,7 +26,7 @@
               comp-polylines $ {} $ :writer
                 fn (write!)
                   hint-fn $ Fn
-                    Fn app.comp.container/TrackVertex $ -> Unit
+                    Fn TrackVertex $ -> Unit
                     -> Unit
                   &doseq
                     idx $ range 10000
