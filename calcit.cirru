@@ -160,7 +160,7 @@
               if (not= next-store store) (reset! *store next-store)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn app.main/Op (-> Unit)
+          :schema $ quote $ Fn Op (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (hint-fn Async)
             if dev? $ load-console-formatter!
@@ -223,7 +223,7 @@
     'app.path $ %{} 'FileEntry
       :defs $ {}
         '*frame $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defref *frame (Option :none)
+          :code $ quote $ defref *frame None
           :examples $ []
           :schema $ quote $ Ref (Option Number)
         'cancel-roll! $ %{} 'CodeEntry (:doc |)
@@ -231,7 +231,7 @@
             match @*frame
               (:some frame) (cancel-animation-frame! frame)
               (:none) &unit
-            reset! *frame $ Option :none
+            reset! *frame None
             , &unit
           :examples $ []
           :schema $ quote $ Fn (-> Unit)
@@ -294,7 +294,7 @@
           :schema $ quote $ Fn Number (-> Unit) (:features :js-ffi)
         'roll-helix! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-helix! (t0)
-            reset! *frame $ Option :some $ request-animation-frame!
+            reset! *frame $ Some $ request-animation-frame!
               fn (t)
                 hint-fn $ Fn Number (-> Unit) (:features :js-ffi)
                 let
