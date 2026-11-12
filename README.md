@@ -4,9 +4,9 @@
 
 Demo https://r.tiye.me/WebGPU-Art/roller-coaster/ .
 
-### Calcit 0.41.1 使用说明
+### Calcit 0.42.1 使用说明
 
-请配套使用正式 Calcit 与 `@calcit/procs` 0.41.1，重装正式依赖并重新生成 JS。
+请配套使用正式 Calcit 与 `@calcit/procs` 0.42.1，重装正式依赖并重新生成 JS。
 模块使用 Lagopus 0.5.17、Memof 0.0.47、Quaternion 0.2.23 和 JS FFI 0.2.13。
 轨道写入使用具名顶点，包含 V3 位置和数值宽度。轨道采样、地面、方块及相机周期沿用原版。
 
@@ -36,7 +36,7 @@ lock 只更新 procs 版本和校验值。CI 保留原检查、构建与部署�
 
 ### Workflow
 
-Uses Calcit 0.41.1, Node 24 and Yarn 4.18.0. Source and formal
+Uses Calcit 0.42.1, Node 24 and Yarn 4.18.0. Source and formal
 dependencies are declared in `calcit.cirru` and `deps.cirru`.
 
 ```sh
