@@ -160,7 +160,7 @@
               if (not= next-store store) (reset! *store next-store)
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Op (-> Unit)
+          :schema $ quote $ Fn Op (-> Unit) (:features :io :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (hint-fn Async)
             if dev? $ load-console-formatter!
@@ -179,7 +179,7 @@
             setup-roll!
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (nil? build-errors)
@@ -191,7 +191,7 @@
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             let
@@ -199,11 +199,11 @@
               renderLagopusTree tree dispatch!
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'setup-roll! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn setup-roll! () (set! js/window.roll roll!) (cancel-roll!) (roll!) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -234,7 +234,7 @@
             reset! *frame None
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'helix-calc-position $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn helix-calc-position (time)
             let
@@ -250,7 +250,7 @@
           :code $ quote $ defn roll! ()
             roll-helix! $ performance-now
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'roll-cycloid! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-cycloid! (t)
             when (< t 200000)
@@ -317,7 +317,7 @@
                   , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Number (-> Unit)
+          :schema $ quote $ Fn Number (-> Unit) (:features :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.path
           :require
