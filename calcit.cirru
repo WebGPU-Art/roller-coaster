@@ -35,7 +35,7 @@
                       , 200
                   , &unit
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Tag) (-> JsObject)
+          :schema $ quote $ Fn (Map Tag Tag) (-> JsObject) (:features :io :state)
         'comp-cubes $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-cubes (options)
             let
@@ -66,7 +66,7 @@
                         map line $ fn (x)
                           + x $ * idx 8
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Number) (-> JsObject)
+          :schema $ quote $ Fn (Map Tag Number) (-> JsObject) (:features :io)
         'comp-ground $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-ground ()
             let
@@ -91,7 +91,7 @@
                               MeshVertex :vertex $ v3 (* unit i+1) y $ * unit j
                               MeshVertex :vertex $ v3 (* unit i+1) y $ * unit j+1
           :examples $ []
-          :schema $ quote $ Fn (-> JsObject)
+          :schema $ quote $ Fn (-> JsObject) (:features :io)
         'rand-pos $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rand-pos (n)
             v-scale
@@ -203,7 +203,7 @@
         'setup-roll! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn setup-roll! () (set! js/window.roll roll!) (cancel-roll!) (roll!) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :js-ffi :state)
+          :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -250,7 +250,7 @@
           :code $ quote $ defn roll! ()
             roll-helix! $ performance-now
           :examples $ []
-          :schema $ quote $ Fn (-> Unit) (:features :state)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'roll-cycloid! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn roll-cycloid! (t)
             when (< t 200000)
@@ -317,7 +317,7 @@
                   , &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Number (-> Unit) (:features :state)
+          :schema $ quote $ Fn Number (-> Unit) (:features :io :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.path
           :require
